@@ -4,9 +4,9 @@ namespace MyWebApi.Models
     {
         public bool Success { get; }
         public string Message { get; }
-        public IEnumerable<ProductDto> UpdatedProducts { get; }
+        public IEnumerable<ProductDto>? UpdatedProducts { get; } // Allow null
 
-        public PurchaseResult(bool success, string message, IEnumerable<ProductDto> updatedProducts)
+        public PurchaseResult(bool success, string message, IEnumerable<ProductDto>? updatedProducts)
         {
             Success = success;
             Message = message;
