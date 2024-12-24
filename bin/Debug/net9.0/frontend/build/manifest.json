@@ -1,6 +1,6 @@
 {
-  "short_name": "Shop It E-Commerce Web App",
-  "name": "Shop It Web App",
+  "short_name": "React App",
+  "name": "Create React App Sample",
   "icons": [
     {
       "src": "favicon.ico",
