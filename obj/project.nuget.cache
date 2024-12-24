@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "kvXhpVYa8cU=",
+  "dgSpecHash": "71r1VgBJ4IA=",
   "success": true,
   "projectFilePath": "/Users/camillebaycroft/Documents/hexagon_project/ecommerceapp/MyWebApi.csproj",
   "expectedPackageFiles": [
@@ -42,6 +42,7 @@
     "/Users/camillebaycroft/.nuget/packages/microsoft.extensions.primitives/9.0.0/microsoft.extensions.primitives.9.0.0.nupkg.sha512",
     "/Users/camillebaycroft/.nuget/packages/microsoft.net.http.headers/2.2.0/microsoft.net.http.headers.2.2.0.nupkg.sha512",
     "/Users/camillebaycroft/.nuget/packages/mono.texttemplating/3.0.0/mono.texttemplating.3.0.0.nupkg.sha512",
+    "/Users/camillebaycroft/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512",
     "/Users/camillebaycroft/.nuget/packages/sqlitepclraw.bundle_e_sqlite3/2.1.10/sqlitepclraw.bundle_e_sqlite3.2.1.10.nupkg.sha512",
     "/Users/camillebaycroft/.nuget/packages/sqlitepclraw.core/2.1.10/sqlitepclraw.core.2.1.10.nupkg.sha512",
     "/Users/camillebaycroft/.nuget/packages/sqlitepclraw.lib.e_sqlite3/2.1.10/sqlitepclraw.lib.e_sqlite3.2.1.10.nupkg.sha512",
