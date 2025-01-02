@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState,useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './CartPanel.css';
-import { CartItem } from '../../Types/CartItem';
+import { CartItem as CartItemType } from '../../Types/CartItem';
 import QuantitySelector from '../Shared/QuantitySelector';
 
 interface CartPanelProps {
-  cart: CartItem[];
+  cart: CartItemType[];
   updateQuantity: (productId: number, quantity: number, isIncrement: boolean) => void;
   removeFromCart: (productId: number) => void;
   closeCart: () => void;
@@ -16,14 +16,8 @@ const CartPanel: React.FC<CartPanelProps> = ({ cart, updateQuantity, removeFromC
   const [modalMessage, setModalMessage] = useState('');
   const navigate = useNavigate();
 
-  const navigateToCheckout = () => {
-    closeCart();
-    navigate('/checkout');
-  };
-
   const handleQuantityChange = (productId: number, newQuantity: number) => {
-    const cartItem = cart.find((item) => item.product.id === productId);
-
+    const cartItem = cart.find(item => item.product.id === productId);
     if (!cartItem) {
       console.error('Product not found in the cart!');
       return;
@@ -48,15 +42,16 @@ const CartPanel: React.FC<CartPanelProps> = ({ cart, updateQuantity, removeFromC
     setModalMessage('');
   };
 
-  const renderCartItem = (item: CartItem) => (
+
+  const renderCartItem = (item: CartItemType) => (
     <li className="cart-item" key={item.product.id}>
       <div className="cart-item-details">
         <span>{item.product.name} - ${item.product.price.toFixed(2)}</span>
         <QuantitySelector
-  value={item.quantity}
-  max={item.product.stockQuantity}
-  onChange={(newValue) => handleQuantityChange(item.product.id, newValue)}
-/>
+          value={item.quantity}
+          max={item.product.stockQuantity}
+          onChange={newValue => handleQuantityChange(item.product.id, newValue)}
+        />
       </div>
       <button
         className="cart-item-remove"
@@ -80,17 +75,13 @@ const CartPanel: React.FC<CartPanelProps> = ({ cart, updateQuantity, removeFromC
           ×
         </button>
       </header>
-
       <div className="cart-content">
         {cart.length > 0 ? (
           <>
             <ul className="cart-item-list">
               {cart.map(renderCartItem)}
             </ul>
-            <button
-              className="checkout-button"
-              onClick={navigateToCheckout}
-            >
+            <button className="checkout-button" onClick={() => navigate('/checkout')}>
               Checkout
             </button>
           </>
@@ -98,7 +89,6 @@ const CartPanel: React.FC<CartPanelProps> = ({ cart, updateQuantity, removeFromC
           <p className="cart-empty">Your cart is empty.</p>
         )}
       </div>
-
       {isModalOpen && (
         <div className="modal">
           <div className="modal-content">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { ProductCard } from './ProductCard';
 import { Product } from '../../Types/Product';
@@ -11,58 +11,63 @@ interface ProductListProps {
 
 }
 
-const ProductList: React.FC<ProductListProps> = ({ products, addToCart ,delistItem}) => {
-  const [filter, setFilter] = useState({ name: '', category: '' });
-  const [sortKey, setSortKey] = useState<'name' | 'price'>('name');
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
-  
-  
-  useEffect(() => {
-    const filterAndSortProducts = () => {
-      let filtered = [...products];
 
-      if (filter.name) {
-        filtered = filtered.filter((product) =>
-          product.name.toLowerCase().includes(filter.name.toLowerCase())
-        );
-      }
+interface Filter {
+  name: string;
+  category: string;
+}
 
-      if (filter.category) {
-        filtered = filtered.filter((product) =>
-          product.category.toLowerCase().includes(filter.category.toLowerCase())
-        );
-      }
-
-      filtered.sort((a, b) => {
-        if (sortKey === 'name') {
-          return a.name.localeCompare(b.name);
-        }
-        return a.price - b.price;
-      });
-
-      return [
-        ...filtered.filter((product) => product.stockQuantity > 0),
-        ...filtered.filter((product) => product.stockQuantity === 0),
-      ];
-    };
-
-    setFilteredProducts(filterAndSortProducts());
-  }, [products, filter, sortKey]);
+const ProductList: React.FC<ProductListProps> = ({ products,addToCart ,delistItem}) => {
+  const [filter, setFilter] = useState<Filter>({ name: '', category: '' });
+  const [sortType,setSortType] = useState<'name' | 'price'>('name');
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFilter({ ...filter, category: e.target.value });
   };
-
-  
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilter({ ...filter, name: e.target.value });
   };
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSortKey(e.target.value as 'name' | 'price');
+    setSortType(e.target.value as 'name' | 'price');
   };
+
+  const filterProducts = (products: Product[]): Product[] => {
+    return products
+      .filter((product) =>
+        filter.name
+          ? product.name.toLowerCase().includes(filter.name.toLowerCase())
+          : true
+      )
+      .filter((product) =>
+        filter.category
+          ? product.category.toLowerCase().includes(filter.category.toLowerCase())
+          : true
+      );
+  };
+
+  
+  const sortProducts = (products: Product[]): Product[] => {
+
+    let filteredProducts = [...products]
+
+    filteredProducts.sort((a,b) => {
+      if (sortType === 'name') {
+           return a.name.localeCompare(b.name)
+      } 
+      return a.price - b.price;
+    });
+
+    return [ 
+      ...filteredProducts.filter((product) => product.stockQuantity > 0),
+      ...filteredProducts.filter((product) => product.stockQuantity == 0),
+    ]
+  };
+
+
+  const filteredProducts = useMemo(() => sortProducts(filterProducts(products)),[products,filter,sortType]);
 
   return (
     <div>
@@ -79,7 +84,7 @@ const ProductList: React.FC<ProductListProps> = ({ products, addToCart ,delistIt
           value={filter.name}
           onChange={handleSearchChange}
         />
-        <select value={sortKey} onChange={handleSortChange}>
+        <select value={sortType} onChange={handleSortChange}>
           <option value="name">Sort by Name</option>
           <option value="price">Sort by Price</option>
         </select>
@@ -94,17 +99,7 @@ const ProductList: React.FC<ProductListProps> = ({ products, addToCart ,delistIt
           <p className="no-products-message">No products found matching your search.</p>
         ) : (
           filteredProducts.map((product) => (
-            <div
-              key={product.id}
-              className={`product-list-item ${product.stockQuantity === 0 ? 'disabled' : ''}`}
-              style={{ cursor: product.stockQuantity === 0 ? 'not-allowed' : 'pointer' }}
-            >
-              <img
-                src={`/product-images/${product.name}.jpg`}
-                alt={product.name}
-                className="product-image"
-              />
-              <div className="product-details">
+           
                 <ProductCard
                 delistItem={delistItem}
                   key={product.id}
@@ -112,8 +107,7 @@ const ProductList: React.FC<ProductListProps> = ({ products, addToCart ,delistIt
                   onAddToCart={addToCart}
           
                 />
-              </div>
-            </div>
+             
           ))
         )}
       </motion.div>

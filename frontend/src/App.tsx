@@ -24,8 +24,23 @@ interface Sort {
 const App: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [filter] = useState<Filter>({ name: '', category: '' });
-  const [sort] = useState<Sort>({ field: 'name', direction: 'asc' });
 
+
+    useEffect(() => {
+      const handleFetchingProducts = async () => {
+        try {
+          const products = await fetchProducts();
+   
+          setProducts(products.data);
+        } catch (error) {
+          console.error('Failed to load products:', error);
+        }
+      };
+  
+      handleFetchingProducts();
+    }, []);
+  
+    
   const {
     cart,
     addToCart,
@@ -73,51 +88,8 @@ const handleDelistingProduct = async (productId: number) => {
 
 
 
-  useEffect(() => {
-    const handleFetchingProducts = async () => {
-      try {
-        const products = await fetchProducts();
- 
-        setProducts(products.data);
-      } catch (error) {
-        console.error('Failed to load products:', error);
-      }
-    };
-
-    handleFetchingProducts();
-  }, []);
-
   
-  const filterProducts = (products: Product[]): Product[] => {
-    return products
-      .filter((product) =>
-        filter.name
-          ? product.name.toLowerCase().includes(filter.name.toLowerCase())
-          : true
-      )
-      .filter((product) =>
-        filter.category
-          ? product.category.toLowerCase().includes(filter.category.toLowerCase())
-          : true
-      );
-  };
-
   
-  const sortProducts = (products: Product[]): Product[] => {
-    return [...products].sort((a, b) => {
-      if (sort.field === 'name') {
-        return sort.direction === 'asc'
-          ? a.name.localeCompare(b.name)
-          : b.name.localeCompare(a.name);
-      } else if (sort.field === 'price') {
-        return sort.direction === 'asc' ? a.price - b.price : b.price - a.price;
-      }
-      return 0;
-    });
-  };
-
- 
-  const displayedProducts = sortProducts(filterProducts(products));
 
   return (
     <div className="App">
@@ -128,7 +100,7 @@ const handleDelistingProduct = async (productId: number) => {
         <Route
           path="/"
           element={
-            <ProductList delistItem={handleDelistingProduct} products={displayedProducts} addToCart={addToCart}/>
+            <ProductList products={products} delistItem={handleDelistingProduct}  addToCart={addToCart}/>
           }
         />
         <Route path="/checkout" element={<CheckoutPage cart={cart} updateQuantity={updateQuantity} removeFromCart={removeFromCart}/>} />

@@ -13,13 +13,13 @@ type CartItemProps = {
 const CartItem: React.FC<CartItemProps> = ({ item, onRemove, updateQuantity }) => (
   <div className="cart-item">
     <h4>{item.product.name}</h4>
-    <p>{item.product.price}</p>
+    <p>${item.product.price.toFixed(2)}</p>
     <input
       type="number"
       value={item.quantity}
-      onChange={(e) => updateQuantity(item.product.id, Number(e.target.value))}
+      onChange={e => updateQuantity(item.product.id, Number(e.target.value))}
     />
-    <button id="exit-button" onClick={() => onRemove(item.product.id)}>x</button>
+    <button id="exit-button" onClick={() => onRemove(item.product.id)} aria-label="Remove item">x</button>
   </div>
 );
 

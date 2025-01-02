@@ -9,14 +9,16 @@ interface QuantitySelectorProps {
 const QuantitySelector: React.FC<QuantitySelectorProps> = ({ value, max, onChange }) => {
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newValue = parseInt(e.target.value, 10);
-    onChange(newValue);
+    if (!isNaN(newValue)) {
+      onChange(newValue);
+    }
   };
 
   return (
     <select value={value} onChange={handleChange}>
-      {[...Array(max + 1).keys()].map((quantity) => (
-        <option key={quantity} value={quantity}>
-          {quantity}
+      {Array.from({ length: max + 1 }, (_, i) => (
+        <option key={i} value={i}>
+          {i}
         </option>
       ))}
     </select>
