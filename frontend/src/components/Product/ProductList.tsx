@@ -2,7 +2,9 @@ import React, { useState, useEffect,useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { ProductCard } from './ProductCard';
 import { Product } from '../../Types/Product';
+import {Filter} from '../../Types/Filter';
 import './Product.css';
+import { FilterComponent } from './Filter';
 
 interface ProductListProps {
   products: Product[];
@@ -11,12 +13,6 @@ interface ProductListProps {
 
 }
 
-
-
-interface Filter {
-  name: string;
-  category: string;
-}
 
 const ProductList: React.FC<ProductListProps> = ({ products,addToCart ,delistItem}) => {
   const [filter, setFilter] = useState<Filter>({ name: '', category: '' });
@@ -71,24 +67,7 @@ const ProductList: React.FC<ProductListProps> = ({ products,addToCart ,delistIte
 
   return (
     <div>
-      <div className="filters">
-        <select value={filter.category} onChange={handleCategoryChange}>
-          <option value="">All Categories</option>
-          <option value="Electronics">Electronics</option>
-          <option value="Furniture">Furniture</option>
-          <option value="Outdoor">Outdoor</option>
-        </select>
-        <input
-          type="text"
-          placeholder="Search by name"
-          value={filter.name}
-          onChange={handleSearchChange}
-        />
-        <select value={sortType} onChange={handleSortChange}>
-          <option value="name">Sort by Name</option>
-          <option value="price">Sort by Price</option>
-        </select>
-      </div>
+     <FilterComponent filter={filter} handleCategoryChange={handleCategoryChange} handleSearchChange = {handleSearchChange} sortType={sortType} handleSortChange={handleSortChange}/>
       <motion.div
         className="product-list"
         initial={{ opacity: 0 }}
