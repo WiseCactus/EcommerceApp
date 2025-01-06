@@ -11,7 +11,9 @@ const useCart = () => {
 
   const clearCart = useCallback(() => {
     setCart([])
-  }, [setCart]);
+    }, 
+    [setCart]
+  );
 
   const toggleCart = () => {
     setIsCartOpen((prev) => !prev);
@@ -48,8 +50,9 @@ const useCart = () => {
     setCart((prevCart) => {
       const updatedCart = prevCart.filter((item) => item.product.id !== productId);
       return updatedCart;
-    })
-  }, [setCart]);
+      })
+    }, 
+  [setCart]);
 
   return {
     cart,

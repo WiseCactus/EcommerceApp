@@ -12,7 +12,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart,d
 
   const handleAddToCart = useCallback(() => {
     onAddToCart(product, 1,true)
-  },[onAddToCart,product])
+    },
+  [onAddToCart,product]
+  );
 
   return (
   <div
