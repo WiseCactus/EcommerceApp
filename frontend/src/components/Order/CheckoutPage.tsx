@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './CheckoutPage.css';
@@ -16,24 +16,29 @@ interface CheckoutPageProps {
 const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, updateQuantity, removeFromCart }) => {
   const navigate = useNavigate();
   const { clearCart } = useCart();
-  const [orderConfirmation, setOrderConfirmation] = useState<{ orderNumber: number | null; deliveryDate: string | null }>({
-    orderNumber: null,
-    deliveryDate: null,
-  });
 
-  const calculateTotalPrice = (): number =>
-    cart.reduce((total, item) => total + item.quantity * item.product.price, 0);
+  const calculateTotalPrice = useMemo(():number => {
+    return cart.reduce((total, item) => total + item.quantity * item.product.price, 0);
+  }, [cart]);
 
-  const handleQuantityChange = (productId: number, newQuantity: number, isIncrement: boolean) =>
-    updateQuantity(productId, newQuantity, isIncrement);
-
+  const handleQuantityChange = useCallback(
+    (productId: number, newQuantity: number, isIncrement: boolean) => {
+      updateQuantity(productId, newQuantity, isIncrement);
+    }, 
+    [updateQuantity]
+  );
+    
   const generateDeliveryDate = (): string => {
     const deliveryDate = new Date();
     deliveryDate.setDate(deliveryDate.getDate() + 14);
     return deliveryDate.toLocaleDateString();
   };
 
-  const handleRemoveFromCart = (productId: number) => removeFromCart(productId);
+  const handleRemoveFromCart = useCallback(
+    (productId: number) => 
+      removeFromCart(productId),
+    [removeFromCart]
+  );
 
   const handlePurchase = async () => {
     try {
@@ -41,8 +46,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, updateQuantity, remov
       const orderNumber = Math.floor(Math.random() * 1000000);
       const deliveryDate = generateDeliveryDate();
 
-      setOrderConfirmation({ orderNumber, deliveryDate });
       clearCart();
+
       navigate('/order-success', { state: { orderNumber, deliveryDate } });
     } catch (error) {
       console.error('Purchase error:', error);
@@ -91,7 +96,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, updateQuantity, remov
         )}
         {cart.length > 0 && (
           <div className="total-section">
-            <div className="total-price">Total: ${calculateTotalPrice().toFixed(2)}</div>
+            <div className="total-price">Total: ${calculateTotalPrice.toFixed(2)}</div>
             <button className="checkout-button" onClick={handlePurchase}>Place Order</button>
           </div>
         )}

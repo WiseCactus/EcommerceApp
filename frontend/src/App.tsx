@@ -11,35 +11,9 @@ import './App.css';
 import { Product } from './Types/Product';
 import {delistItem,fetchProducts} from './utils/api';
 
-interface Filter {
-  name: string;
-  category: string;
-}
-
-interface Sort {
-  field: 'name' | 'price';
-  direction: 'asc' | 'desc';
-}
-
 const App: React.FC = () => {
 
   const [products, setProducts] = useState<Product[]>([]);
-
-    useEffect(() => {
-      const handleFetchingProducts = async () => {
-        try {
-          const products = await fetchProducts();
-   
-          setProducts(products.data);
-        } catch (error) {
-          console.error('Failed to load products:', error);
-        }
-      };
-  
-      handleFetchingProducts();
-    }, []);
-  
-    
 
   const {
     cart,
@@ -50,38 +24,61 @@ const App: React.FC = () => {
     closeCart,
   } = useCart();
 
+  useEffect(() => {
+    const handleFetchingProducts = async () => {
+      try {
+        const products = await fetchProducts();
+  
+        setProducts(products.data);
+      } catch (error) {
+        console.error('Failed to load products:', error);
+      }
+    };
+
+    handleFetchingProducts();
+  }, []);
+
   const location = useLocation();
 
   const isHomePage = location.pathname === '/';
 
-  const updateQuantity = useCallback((productId: number, quantity: number,isIncrement:boolean) => {
-    if (quantity ==0){
-      removeFromCart(productId);
-    }
-    else{
-    addToCart(products.find((product) => product.id === productId)!,quantity,isIncrement);
-    }
-  },[addToCart,removeFromCart,products]);
-
-
-const handleDelistingProduct = useCallback(async (productId: number) => {
-  try {
-   
-    await delistItem(productId).then(() => {
+  const updateQuantity = useCallback(
+    (productId: number, quantity: number, isIncrement: boolean) => {
+      if (quantity === 0) {
+        removeFromCart(productId);
+      } else {
+        const product = products.find((product) => product.id === productId);
+  
+        if (product) {
+          addToCart(product, quantity, isIncrement);
+        } else {
+          console.error(`Product with ID ${productId} not found.`);
+        }
+      }
+    },
+    [addToCart, removeFromCart, products]
+  );
   
 
-    setProducts((prevProducts) =>
-      prevProducts.map((item: Product) =>
-        item.id === productId ? { ...item, stockQuantity: 0 } : item
-      )
-    );
-  });
-    
-  } catch (error) {
-    console.error("Error delisting item:", error);
-    alert("Failed to delist the product. Please try again.");
-  }
-},[delistItem]);
+  const handleDelistingProduct = useCallback(
+    async (productId: number) => {
+      try {
+        await delistItem(productId);
+  
+        setProducts((prevProducts) =>
+          prevProducts.map((item: Product) =>
+            item.id === productId ? { ...item, stockQuantity: 0 } : item
+          )
+        );
+      } catch (error) {
+        console.error("Error delisting item:", error);
+        alert("Failed to delist the product. Please try again.");
+      }
+    },
+    [delistItem]
+  );
+  
+  
 
   return (
     <div className="App">

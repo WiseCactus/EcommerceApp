@@ -16,26 +16,29 @@ const CartPanel: React.FC<CartPanelProps> = ({ cart, updateQuantity, removeFromC
   const [modalMessage, setModalMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleQuantityChange = useCallback((productId: number, newQuantity: number) => {
-    const cartItem = cart.find(item => item.product.id === productId);
-    if (!cartItem) {
-      console.error('Product not found in the cart!');
-      return;
-    }
+  const handleQuantityChange = useCallback(
+    (productId: number, newQuantity: number) => {
+      const cartItem = cart.find(item => item.product.id === productId);
+      if (!cartItem) {
+        console.error('Product not found in the cart!');
+        return;
+      }
 
-    if (newQuantity > cartItem.product.stockQuantity) {
-      setModalMessage(`You can only select up to ${cartItem.product.stockQuantity} units of ${cartItem.product.name}.`);
-      setIsModalOpen(true);
-      return;
-    }
+      if (newQuantity > cartItem.product.stockQuantity) {
+        setModalMessage(`You can only select up to ${cartItem.product.stockQuantity} units of ${cartItem.product.name}.`);
+        setIsModalOpen(true);
+        return;
+      }
 
-    if (newQuantity === 0) {
-      removeFromCart(productId);
-      return;
-    }
+      if (newQuantity === 0) {
+        removeFromCart(productId);
+        return;
+      }
 
-    updateQuantity(productId, newQuantity, false);
-  },[cart,removeFromCart,updateQuantity]);
+      updateQuantity(productId, newQuantity, false);
+    },
+    [cart,removeFromCart,updateQuantity]
+  );
 
   const closeModal = () => {
     setIsModalOpen(false);

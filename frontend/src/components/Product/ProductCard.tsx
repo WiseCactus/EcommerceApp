@@ -11,8 +11,8 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart,delistItem}) => {
 
   const handleAddToCart = useCallback(() => {
-    onAddToCart(product, 1,true); // Always add 1 more item to the cart
-    },[onAddToCart,product])
+    onAddToCart(product, 1,true)
+  },[onAddToCart,product])
 
   return (
   <div

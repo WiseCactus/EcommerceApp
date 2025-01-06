@@ -29,40 +29,30 @@ const ProductList: React.FC<ProductListProps> = ({ products,addToCart ,delistIte
     setSortType(e.target.value as 'name' | 'price');
   };
 
-  const filterProducts = (products: Product[]): Product[] => {
-    return products
-      .filter((product) =>
+  const filteredAndSortedProducts = useMemo(() => {
+   
+    const filtered = products
+      .filter(product =>
         filter.name
           ? product.name.toLowerCase().includes(filter.name.toLowerCase())
           : true
       )
-      .filter((product) =>
+      .filter(product =>
         filter.category
           ? product.category.toLowerCase().includes(filter.category.toLowerCase())
           : true
       );
-  };
-
-  const sortProducts = (products: Product[]): Product[] => {
-
-    let filteredProducts = [...products]
-
-    const sortedProducts = useMemo(() => {filteredProducts.sort((a,b) => {
-      if (sortType === 'name') {
-           return a.name.localeCompare(b.name)
-      } 
-      return a.price - b.price;
-    })},[filteredProducts]);
-
-    return [ 
-      ...filteredProducts.filter((product) => product.stockQuantity > 0),
-      ...filteredProducts.filter((product) => product.stockQuantity == 0),
-    ]
-  };
-
-
-  const filteredProducts = useMemo(() => sortProducts(filterProducts(products)),[products,filter,sortType]);
-
+  
+    const sorted = [...filtered].sort((a, b) => {
+      return sortType === 'name' ? a.name.localeCompare(b.name) : a.price - b.price;
+    });
+  
+    return [
+      ...sorted.filter(product => product.stockQuantity > 0),
+      ...sorted.filter(product => product.stockQuantity === 0),
+    ];
+  }, [products, filter, sortType]);
+  
   return (
     <div>
       <motion.div
@@ -73,12 +63,11 @@ const ProductList: React.FC<ProductListProps> = ({ products,addToCart ,delistIte
       >
       <FilterComponent filter={filter} handleCategoryChange={handleCategoryChange} handleSearchChange = {handleSearchChange} sortType={sortType} handleSortChange={handleSortChange}/>
       
-        {filteredProducts.length === 0 ?
+        {filteredAndSortedProducts.length === 0 ?
          (
           <p className="no-products-message">No products found matching your search.</p>
          ) : (
-          filteredProducts.map((product) => (
-           
+          filteredAndSortedProducts.map((product) => (
                 <ProductCard
                   delistItem={delistItem}
                   key={product.id}
