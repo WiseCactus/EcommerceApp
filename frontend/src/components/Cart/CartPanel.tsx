@@ -1,4 +1,4 @@
-import React, { useState,useMemo } from 'react';
+import React, { useState,useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './CartPanel.css';
 import { CartItem as CartItemType } from '../../Types/CartItem';
@@ -16,7 +16,7 @@ const CartPanel: React.FC<CartPanelProps> = ({ cart, updateQuantity, removeFromC
   const [modalMessage, setModalMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleQuantityChange = (productId: number, newQuantity: number) => {
+  const handleQuantityChange = useCallback((productId: number, newQuantity: number) => {
     const cartItem = cart.find(item => item.product.id === productId);
     if (!cartItem) {
       console.error('Product not found in the cart!');
@@ -35,7 +35,7 @@ const CartPanel: React.FC<CartPanelProps> = ({ cart, updateQuantity, removeFromC
     }
 
     updateQuantity(productId, newQuantity, false);
-  };
+  },[cart,removeFromCart,updateQuantity]);
 
   const closeModal = () => {
     setIsModalOpen(false);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
@@ -22,9 +22,8 @@ interface Sort {
 }
 
 const App: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [filter] = useState<Filter>({ name: '', category: '' });
 
+  const [products, setProducts] = useState<Product[]>([]);
 
     useEffect(() => {
       const handleFetchingProducts = async () => {
@@ -41,6 +40,7 @@ const App: React.FC = () => {
     }, []);
   
     
+
   const {
     cart,
     addToCart,
@@ -54,20 +54,17 @@ const App: React.FC = () => {
 
   const isHomePage = location.pathname === '/';
 
-  const updateQuantity = (productId: number, quantity: number,isIncrement:boolean) => {
+  const updateQuantity = useCallback((productId: number, quantity: number,isIncrement:boolean) => {
     if (quantity ==0){
       removeFromCart(productId);
     }
     else{
-    addToCart(
-      products.find((product) => product.id === productId)!,quantity,isIncrement
-    );
-  }
-  };
+    addToCart(products.find((product) => product.id === productId)!,quantity,isIncrement);
+    }
+  },[addToCart,removeFromCart,products]);
 
-  
 
-const handleDelistingProduct = async (productId: number) => {
+const handleDelistingProduct = useCallback(async (productId: number) => {
   try {
    
     await delistItem(productId).then(() => {
@@ -84,12 +81,7 @@ const handleDelistingProduct = async (productId: number) => {
     console.error("Error delisting item:", error);
     alert("Failed to delist the product. Please try again.");
   }
-};
-
-
-
-  
-  
+},[delistItem]);
 
   return (
     <div className="App">
