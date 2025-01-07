@@ -102,7 +102,7 @@ const App: React.FC = () => {
         </button>
       )}
 
-{isCartOpen && isHomePage &&  (
+      {isCartOpen && isHomePage &&  (
         <motion.div
           initial={{ x: '500px' }}
           animate={{ x: '0px' }}
