@@ -1,5 +1,6 @@
 import React from "react";
 import {Filter} from '../../Types/Filter';
+import './Product.css';
 
 interface FilterProps {
     filter:Filter,

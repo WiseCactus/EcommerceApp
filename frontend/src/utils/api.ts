@@ -1,24 +1,56 @@
+import { ProductPurchaseRequest } from '../Types/ProductPurchaseRequest';
 
-import axios from 'axios';
-import { Product } from '../Types/Product';
-export const delistItem = async (productId: number) => {
-  const itemDelistResponse =  await axios.post('http://localhost:5246/api/product/delist', productId , {
-    headers: { 'Content-Type': 'application/json' }},);
+const API_BASE_URL = 'http://localhost:5246/api';
 
-  return itemDelistResponse;
+export const getAllProducts = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/product`);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw error;
+  }
 };
 
-export const fetchProducts = async () => { 
-    const fetchResponse = await axios.get('http://localhost:5246/api/product');
-    return fetchResponse;
-}
+export const purchaseProducts = async (purchaseRequests: ProductPurchaseRequest[]) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/product/purchase`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(purchaseRequests)
+    });
 
-export const purchaseProducts =  async (productsToPurchase: { id: any; quantity: number; }[]) => { 
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
 
-    const purchaseResponse = await axios.post('http://localhost:5246/api/product/purchase', productsToPurchase, {
-          headers: { 'Content-Type': 'application/json' },
-        });
+    return await response.json();
+  } catch (error) {
+    console.error('Error purchasing products:', error);
+    throw error;
+  }
+};
 
-      return purchaseResponse;
-
-    };
+export const delistItem = async (productId: number): Promise<any> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/product/delist`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(productId)
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error delisting product:', error);
+    throw error;
+  }
+};

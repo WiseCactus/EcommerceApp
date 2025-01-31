@@ -40,12 +40,10 @@ namespace MyWebApi.Services {
             }
 
             var outOfStockProducts = products.Where(product =>
-                purchaseRequests.Any(request => request.Id == product.Id && request.Quantity > product.StockQuantity)
-            ).ToList();
+                purchaseRequests.Any(request => request.Id == product.Id && request.Quantity > product.StockQuantity)).ToList();
 
             if (outOfStockProducts.Any()) {
                 return new PurchaseResult(false, $"The following products are out of stock: {string.Join(", ", outOfStockProducts.Select(p => p.Name))}", null);
-
             }
 
             foreach(var product in products) {
@@ -68,6 +66,7 @@ namespace MyWebApi.Services {
 
         public async Task < OperationResult > DelistProductAsync(int productId) {
             var product = await _dbContext.Products.FindAsync(productId);
+            
             if (product == null) {
                 return new OperationResult(false, "Product with ID {productId} not found.");
             }

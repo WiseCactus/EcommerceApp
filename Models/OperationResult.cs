@@ -1,14 +1,8 @@
 namespace MyWebApi.Models
 {
-    public class OperationResult
+    public class OperationResult(bool success, string message)
     {
-        public bool Success { get; set; }
-        public string Message { get; set; }
-
-        public OperationResult(bool success, string message)
-        {
-            Success = success;
-            Message = message;
-        }
+        public bool Success { get; set; } = success;
+        public string Message { get; set; } = message;
     }
 }

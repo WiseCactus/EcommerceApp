@@ -1,56 +1,48 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import axios from 'axios';
 import { motion } from 'framer-motion';
 import CheckoutPage from './components/Order/CheckoutPage';
 import OrderSuccessPage from './components/Order/OrderSuccessPage';
 import ProductList from './components/Product/ProductList';
 import CartPanel from './components/Cart/CartPanel';
-import useCart from './hooks/useCart';
+import { useCart } from './context/CartContext';
 import './App.css';
-import { Product } from './Types/Product';
-import {delistItem,fetchProducts} from './utils/api';
+import { delistItem } from './utils/api';
+import { Provider } from 'react-redux';
+import { store } from './store/store';
+import { useProducts } from './hooks/useProducts';
+import { useDispatch } from 'react-redux';
+import { delistProduct, fetchProducts } from './store/slices/productsSlice';
+import { CartProvider } from './context/CartContext';
+import { AppDispatch } from './store/store';
 
-const App: React.FC = () => {
-
-  const [products, setProducts] = useState<Product[]>([]);
+const AppContent: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { products } = useProducts();
+  const location = useLocation();
 
   const {
     cart,
-    addToCart,
     removeFromCart,
     isCartOpen,
     toggleCart,
     closeCart,
+    addToCart,
+    cartSize
   } = useCart();
-
-  useEffect(() => {
-    const handleFetchingProducts = async () => {
-      try {
-        const products = await fetchProducts();
-  
-        setProducts(products.data);
-      } catch (error) {
-        console.error('Failed to load products:', error);
-      }
-    };
-
-    handleFetchingProducts();
-  }, []);
-
-  const location = useLocation();
 
   const isHomePage = location.pathname === '/';
 
   const updateQuantity = useCallback(
-    (productId: number, quantity: number, isIncrement: boolean) => {
+    (props: { productId: number; quantity: number; isIncrement: boolean }) => {
+      const { productId, quantity, isIncrement } = props;
       if (quantity === 0) {
         removeFromCart(productId);
       } else {
         const product = products.find((product) => product.id === productId);
-  
+
         if (product) {
-          addToCart(product, quantity, isIncrement);
+          addToCart({ product, quantity, isIncrement });
         } else {
           console.error(`Product with ID ${productId} not found.`);
         }
@@ -58,27 +50,28 @@ const App: React.FC = () => {
     },
     [addToCart, removeFromCart, products]
   );
-  
 
   const handleDelistingProduct = useCallback(
     async (productId: number) => {
       try {
-        await delistItem(productId);
-  
-        setProducts((prevProducts) =>
-          prevProducts.map((item: Product) =>
-            item.id === productId ? { ...item, stockQuantity: 0 } : item
-          )
-        );
+        dispatch(delistProduct(productId));
+
+        if (cart.has(productId)) {
+          removeFromCart(productId);
+        }
+
+        const result = await delistItem(productId);
+        if (!result.success) {
+          await dispatch(fetchProducts());
+          throw new Error(result.message);
+        }
       } catch (error) {
         console.error("Error delisting item:", error);
-        alert("Failed to delist the product. Please try again.");
+        alert(error instanceof Error ? error.message : "Failed to delist the product. Please try again.");
       }
     },
-    [delistItem]
+    [dispatch, cart, removeFromCart]
   );
-  
-  
 
   return (
     <div className="App">
@@ -88,21 +81,32 @@ const App: React.FC = () => {
       <Routes>
         <Route
           path="/"
+          element={<ProductList delistItem={handleDelistingProduct} />}
+        />
+        <Route
+          path="/checkout"
           element={
-            <ProductList products={products} delistItem={handleDelistingProduct}  addToCart={addToCart}/>
+            <CheckoutPage
+              cart={cart}
+              updateQuantity={updateQuantity}
+              removeFromCart={removeFromCart}
+            />
           }
         />
-        <Route path="/checkout" element={<CheckoutPage cart={cart} updateQuantity={updateQuantity} removeFromCart={removeFromCart}/>} />
         <Route path="/order-success" element={<OrderSuccessPage />} />
       </Routes>
 
       {isHomePage && (
-        <button className="cart-button" onClick={toggleCart}>
-          🛒 Cart ({cart.length})
+        <button
+          className="cart-button"
+          onClick={toggleCart}
+          aria-label={`Shopping cart with ${cartSize} items`}
+        >
+          🛒 Cart ({cartSize})
         </button>
       )}
 
-      {isCartOpen && isHomePage &&  (
+      {isCartOpen && isHomePage && (
         <motion.div
           initial={{ x: '500px' }}
           animate={{ x: '0px' }}
@@ -113,14 +117,25 @@ const App: React.FC = () => {
           className="cart-panel"
         >
           <CartPanel
-            cart={cart}
             updateQuantity={updateQuantity}
             removeFromCart={removeFromCart}
             closeCart={closeCart}
           />
         </motion.div>
       )}
+
+      
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <Provider store={store}>
+      <CartProvider>
+        <AppContent />
+      </CartProvider>
+    </Provider>
   );
 };
 
