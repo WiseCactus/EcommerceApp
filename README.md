@@ -1,5 +1,9 @@
 # E-Commerce Application
 
+
+https://github.com/user-attachments/assets/46efa797-457c-41e3-97dd-6d49513ba3f4
+
+
 An end-to-end e-commerce platform featuring a React frontend and an ASP.NET Core backend, designed to provide a seamless shopping experience.
 
 ---
